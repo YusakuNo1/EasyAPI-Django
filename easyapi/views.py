@@ -14,6 +14,7 @@ from easyapi.serializers import ForumPostSerializer, UserSerializer
 #from snippets import permissions as snippetsPermissions
 
 
+# Display all APIs
 @api_view(('GET',))
 def api_root(request, format=None):
     return Response({
@@ -24,7 +25,6 @@ def api_root(request, format=None):
 
 class ForumPostList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-#    permission_classes = (snippetsPermissions.IsOwner,)
 
     queryset = ForumPost.objects.all()
     serializer_class = ForumPostSerializer
@@ -45,6 +45,7 @@ class ForumPostDetail(generics.RetrieveUpdateDestroyAPIView):
         
         
 class UserList(generics.ListAPIView):
+    permission_classes = (permissions.IsAdminUser,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

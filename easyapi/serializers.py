@@ -5,8 +5,7 @@ from easyapi.models import ForumPost
 
 
 class ForumPostSerializer(serializers.HyperlinkedModelSerializer):
-#    owner = serializers.Field(source='owner.username')
-    owner = serializers.HyperlinkedRelatedField(many=True, view_name='user-detail')
+    owner = serializers.HyperlinkedRelatedField(view_name='user-detail')
 
     class Meta:
         model = ForumPost
