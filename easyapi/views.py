@@ -15,12 +15,14 @@ from easyapi.serializers import ForumPostSerializer, UserSerializer
 
 
 # Display all APIs
-@api_view(('GET',))
-def api_root(request, format=None):
-    return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'forumPosts': reverse('forumPost-list', request=request, format=format)
-    })
+class ApiRoot(APIView):
+    permission_classes = (permissions.IsAdminUser,)
+    
+    def get(self, request, format=None):
+        return Response({
+            'users': reverse('user-list', request=request, format=format),
+            'forumPosts': reverse('forumPost-list', request=request, format=format)
+        })
 
 
 class ForumPostList(generics.ListCreateAPIView):

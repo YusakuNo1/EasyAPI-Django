@@ -9,7 +9,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # EasyAPI
- 	url(r'^$', views.api_root),
+ 	url(r'^$', views.ApiRoot.as_view(), name='api-root'),
 	
     url(r'^forum_posts/$', views.ForumPostList.as_view(), name='forumPost-list'),
     url(r'^forum_posts/(?P<pk>[0-9]+)/$', views.ForumPostDetail.as_view(), name='forumPost-detail'),
