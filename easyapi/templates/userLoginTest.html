@@ -4,11 +4,22 @@
 </head>
 
 <body>
-<form action="/users/create/?format=json" method="POST">{% csrf_token %}
-Username: <input type="text" name="username"><br>
-Password: <input type="text" name="password">
+
+Create User:
+<form action="/users/create/" method="POST">{% csrf_token %}
+Username: <input type="text" name="username"><br />
+Email: <input type="text" name="email"><br />
+Password: <input type="password" name="password">
     <button>Submit</button>
 </form>
+
+Login User:
+<form action="/users/login/" method="POST">{% csrf_token %}
+Username: <input type="text" name="username"><br />
+Password: <input type="password" name="password">
+    <button>Submit</button>
+</form>
+
 </body>
 
 </html>

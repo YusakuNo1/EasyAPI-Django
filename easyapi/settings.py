@@ -121,10 +121,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # EasyAPI
-    'rest_framework',
+    # EasyAPI & related libs
     'easyapi',
-    
+    'rest_framework',
+    'rest_framework.authtoken',
+
     # Admin
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

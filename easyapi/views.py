@@ -1,12 +1,15 @@
 from django.http import Http404
 from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import render
 from django.db import IntegrityError
-#from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate, login
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework import generics
 from rest_framework import permissions
@@ -61,15 +64,37 @@ class UserDetail(mixins.RetrieveModelMixin,
 
 
 class UserCreate(APIView):
-    @renderer_classes((JSONRenderer, JSONPRenderer))
+    #@csrf_exempt
     def post(self, request, *args, **kwargs):
         try:
-            user = User.objects.create_user(request.DATA.get('username'), request.DATA.get('email'), request.DATA.get('password'))
+            username = request.DATA.get('username')
+            password = request.DATA.get('password')
+            email = request.DATA.get('email')
+            User.objects.create_user(username, email, password)
+            #user = authenticate(username=username, password=password)
+            ##login(request, user)
+            #token = Token.objects.create(user=user)
+            return _user_login(request, username, password, True)
+
         except IntegrityError:
             message = { 'error': 'That username already exists' }
             return HttpResponseBadRequest(json.dumps(message), mimetype='text/json')
 
-        return HttpResponse()
+        #responseData = { 'token': str(token) }
+        #return HttpResponse(json.dumps(responseData))
+
+
+#@api_view(['POST'])
+#def UserLogin(request):
+#    username = request.POST.get('username')
+#    password = request.POST.get('password')
+#    return _user_login(request, username, password)
+class UserLogin(APIView):
+    #@csrf_exempt
+    def post(self, request, *args, **kwargs):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        return _user_login(request, username, password)
 
 
 
@@ -97,7 +122,43 @@ class ForumPostDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 
+# Supporting Functions ---------------------------------------------
+
+def _user_login(request, username, password, newUser=False):
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            login(request, user)
+
+            if newUser:
+                token = Token.objects.create(user=user)
+            else:
+                try:
+                    token = Token.objects.get(user=user)
+                except ObjectDoesNotExist:
+                    token = Token.objects.create(user=user)         # for some reason, the token doesn't exist
+
+            response = HttpResponse(json.dumps({ 'token': str(token), 'id': user.id }))
+
+            #if request.user.is_authenticated():
+            #    response.status_code = status.HTTP_200_OK
+            #else:
+            #    response.status_code = status.HTTP_401_UNAUTHORIZED
+            response.status_code = status.HTTP_200_OK
+
+            return response
+
+        else:
+            return HttpResponseForbidden(content='Your account is not active.')
+    else:
+        return HttpResponseNotFound()
+
+
+
 # Testing Pages ----------------------------------------------------
 
 def UserLoginTest(request):
     return render(request, 'userLoginTest.html', { 'value': 'my value~~' })
+
+
+
