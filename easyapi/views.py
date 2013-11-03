@@ -57,6 +57,9 @@ class UserDetail(mixins.RetrieveModelMixin,
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
+        if request.user and request.DATA.get('password'):
+            request.user.set_password(request.DATA.get('password'))
+            request.user.save()
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
